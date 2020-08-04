@@ -1,3 +1,5 @@
+const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+
 let db;
 const request = indexedDB.open("budget", 1);
 
