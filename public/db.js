@@ -1,21 +1,22 @@
-const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-
 let db;
 const request = indexedDB.open("budget", 1);
 
-request.onupgradeneeded = function(evt) {
-  const db = evt.target.result;
+request.onupgradeneeded = function(event) {
+  const db = event.target.result;
   db.createObjectStore("pending", { autoIncrement: true });
 };
 
-request.onsuccess = function(evt) {
-  db = evt.target.result;
+request.onsuccess = function(event) {
+  db = event.target.result;
+
+  // check if app is online before reading from db
   if (navigator.onLine) {
     checkDatabase();
-}};
+  }
+};
 
-request.onerror = function(evt) {
-  console.log("Woops! " + evt.target.errorCode);
+request.onerror = function(event) {
+  console.log("Woops! " + event.target.errorCode);
 };
 
 function saveRecord(record) {
@@ -41,11 +42,14 @@ function checkDatabase() {
       })
       .then(response => response.json())
         .then(() => {
+          // delete records if successful
           const transaction = db.transaction(["pending"], "readwrite");
           const store = transaction.objectStore("pending");
           store.clear();
         });
-    }};
+    }
+  };
 }
 
+// listen for app coming back online
 window.addEventListener("online", checkDatabase);
